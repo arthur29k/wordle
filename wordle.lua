@@ -4,7 +4,7 @@ script_version('1.0')
 
 ------------------------------------------LIBS----------------------------------------------
 local sampev = require("lib.samp.events")
-local letlib = require("letlib")
+require "strings"
 -----------------------------------------LOCALES--------------------------------------------
 local debugmode = false
 local version = (thisScript().version)
@@ -20,14 +20,13 @@ assert(notif_sound, 'Error in loading notif_sound! Did you install it?')
 function main()
     while not isSampAvailable() do
         wait(100)
-    end
+    end 
     print("Привет прогнивший мир!")
     sampAddChatMessage("[Wordle] {ffffff}Скрипт запущен, используйте /wordle для активации", msgcolor)
     sampAddChatMessage('[Wordle] {ffffff}Автор скрипта: akero. Версия: ' .. tostring(version), msgcolor)
 
     sampRegisterChatCommand("wordle", activate)
     sampRegisterChatCommand("debuger", debuger)
-    sampRegisterChatCommand("letlib", letlib_about)
     wait(-1)
 end
 
@@ -39,7 +38,7 @@ end
 function activate(arg) --Команда /wordle
     if active == true and arg:match(".+") then
             sampAddChatMessage("[Wordle] {ffffff}Искомое слово заменено на: «" .. arg .. "»", msgcolor)
-            word = (arg)
+            word = arg:lower()
             if debugmode == true then
                 print("Searching word is: "..word)
             end 
@@ -47,10 +46,9 @@ function activate(arg) --Команда /wordle
         if arg:match(".+") then
             active = true
             sampAddChatMessage("[Wordle] {ffffff}Запущен поиск слова «" .. arg .. "» в чате", msgcolor)
-            word = (arg)
+            word = arg:lower()
             if debugmode == true then
                 print("Searching word is: "..word)
-                print(string.lower(word))
             end
         else 
             sampAddChatMessage("[Wordle] {ffffff}Используй: /wordle [Искомое слово]", msgcolor)
@@ -66,7 +64,8 @@ end
 
 function sampev.onServerMessage(color, text) --Проверка текста в чате
     if active == true then
-        if text:find(word) then
+        local lowtext = text:lower()
+        if lowtext:find(word) then
             sampAddChatMessage("[Wordle] {ffffff}В чате обнаружено искомое слово! Поиск остановлен", msgcolor)
             setAudioStreamState(notif_sound, 1)
             active = false
@@ -78,8 +77,4 @@ function onScriptTerminate(script, game_quit) --Краш скрипта
     if script == thisScript() and not game_quit and not reload_script then
         sampAddChatMessage("[Wordle] {ffffff}Скрипт приостановил работу, проверьте консоль SAMPFUNCS", msgcolor)
     end
-end
-
-function letlib_about()
-    letlib.about()
 end
